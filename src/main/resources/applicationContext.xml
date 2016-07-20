@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+	default-autowire="byName">
+
+
+	<context:component-scan base-package="com.shen.express" />
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver">
+		</property>
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/dhuoj?useUnicode=true&amp;characterEncoding=utf-8" />
+		<property name="username" value="root"></property>
+		<property name="password" value=""></property>
+		<!-- <property name="url" value="jdbc:mysql://w.rdc.sae.sina.com.cn:3307/app_homesexpress"> 
+			</property> <property name="username" value="oo1omxlkzo"></property> <property 
+			name="password" value="xk42wh12m21mm4mz0wmk01wj4333z3z03xwlw2ix"></property> 
+			<property name="maxWait" value="1000" /> <property name="initialSize" value="5" 
+			/> <property name="maxActive" value="20" /> <property name="maxIdle" value="5" 
+			/> <property name="testWhileIdle" value="true" /> <property name="timeBetweenEvictionRunsMillis" 
+			value="15000" /> <property name="numTestsPerEvictionRun" value="20" /> <property 
+			name="validationQuery" value="SELECT 1 FROM DUAL" /> <property name="removeAbandoned" 
+			value="true" /> <property name="removeAbandonedTimeout" value="180" /> -->
+
+
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<!-- 自动创建数据库 -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+
+			</props>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+
+				<value>com.shen.express.pojo.AcmUser</value>
+				<value>com.shen.express.pojo.AcmContest</value>
+				<value>com.shen.express.pojo.AcmContestProblem</value>
+				<value>com.shen.express.pojo.AcmContestReservation</value>
+
+			</list>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- 支持上传文件 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+</beans>
